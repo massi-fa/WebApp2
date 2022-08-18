@@ -56,7 +56,7 @@ thingShadows.on('message', function(topic, payload) {
         lightState = obj.current.state.reported.value.light;
         console.log("new Humidity: " + humidityState  + " new Temperature: " + temperatureState +
           " new Light: " + lightState);
-        /*db
+        db
         .collection(name)
         .insertOne({
             humidity: humidityState,
@@ -66,7 +66,7 @@ thingShadows.on('message', function(topic, payload) {
         })
         .then(result => console.log(result))
         .catch(err => console.error(err));
-        */
+        
     }else{
       console.log('non ci interessa');
     }

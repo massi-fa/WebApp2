@@ -128,3 +128,4 @@ dist
 *.key
 *.crt
 *.pem
+server/config/default.json

@@ -1,4 +1,4 @@
 {
     "mongoURI":
-      "your uri"
+      "mongodb+srv://Snarci:Snarci@cluster0.tzdeoiy.mongodb.net/?retryWrites=true&w=majority"
   }
