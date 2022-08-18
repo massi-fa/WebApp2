@@ -1,5 +1,7 @@
 const express = require('express');
+const mongoose = require('mongoose');
 const awsIot = require('aws-iot-device-sdk');
+const connectDB = require('./config/db');
 
 const name = 'ESP32';
 const  thingShadows = awsIot.thingShadow({
@@ -17,6 +19,25 @@ var lightState = null;
 const app = express();
 app.use(express.json());
 
+//Connection to mongodb
+connectDB();
+
+const db = mongoose.connection;
+
+db.on("error", console.error.bind(console, "connection error: "));
+
+db.once("open", function () {
+  console.log("Connected successfully");
+});
+
+app.get('/dati', (req, res) =>  {
+    db.collection(name).find().sort({date:-1}).limit(1).toArray(function(err, result) {
+        if (err) throw err;
+        res.header("Refresh", "30");
+        res.send(result[0]);
+    });
+});
+
 //Setup connessioni con i device
 
 thingShadows.on('connect', function() {
@@ -28,9 +49,7 @@ thingShadows.on('connect', function() {
 });
 
 thingShadows.on('message', function(topic, payload) {
-    //console.log('message', topic, payload.toString());
     if(topic == '$aws/things/' + name + '/shadow/update/documents') {
-        //console.log(payload.toString());
         var obj = JSON.parse(payload.toString());
         humidityState = obj.current.state.reported.value.humidity;
         temperatureState = obj.current.state.reported.value.temperature;
