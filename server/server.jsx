@@ -38,6 +38,14 @@ app.get('/dati', (req, res) =>  {
     });
 });
 
+app.get('/temperature', (req, res) =>  {
+  db.collection(name).find().sort({date:-1}).toArray(function(err, result) {
+      if (err) throw err;
+      res.send(result);
+      // console.log(result);
+  });
+});
+
 //Setup connessioni con i device
 
 thingShadows.on('connect', function() {
