@@ -10,7 +10,7 @@ const Container = styled.div`
   background-image: ${(props) => props.bgImg};
   margin: 5px;
   border-radius: 10px;
-  padding: 5px 10px 5px 10px;
+  padding: 2px 4px 2px 4px;
 `;
 
 const Icon = styled.img`

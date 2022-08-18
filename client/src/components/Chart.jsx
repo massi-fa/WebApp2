@@ -57,6 +57,18 @@ const Chart = () => {
     ],
   };
 
+  const dataLineL = {
+    labels: data.map(({ date }) => date.substring(11, 19).replace('T', '/')),
+    datasets: [
+      {
+        label: 'Light',
+        data: data.map(({ light }) => light),
+        borderColor: '#ffe7c2',
+        backgroundColor: '#fcb344',
+      },
+    ],
+  };
+
   const dataLineH = {
     labels: data.map(({ date }) => date.substring(11, 19).replace('T', '/')),
     datasets: [
@@ -74,6 +86,8 @@ const Chart = () => {
       <Line data={dataLineT} />
       <Space />
       <Line data={dataLineH} />
+      <Space />
+      <Line data={dataLineL} />
     </Container>
   );
 };

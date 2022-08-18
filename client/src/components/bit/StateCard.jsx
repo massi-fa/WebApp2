@@ -6,6 +6,7 @@ import axios from 'axios';
 import sun from '../../res/sun.svg';
 import humLogo from '../../res/humidityLogo.svg';
 import tempLogo from '../../res/temperatureLogo.svg';
+import lightLogo from '../../res/lightLogo.svg';
 
 import Card from './Card';
 
@@ -27,8 +28,8 @@ const Container = styled.div`
 const ContainerIcon = styled.div`
     display: flex;
     justify-content: space-between;
-    width: 7rem;
-    height: 7rem;
+    width: 4rem;
+    height: 4rem;
     border-radius: 50%;
     background-color: white;
     box-shadow: rgba(0, 0, 0, 0.15) 0px 5px 15px;
@@ -51,11 +52,13 @@ const Icon = styled.img`
 const StateCard = () => {
   const [temp, setTemp] = useState('nan');
   const [hum, setHum] = useState('nan');
+  const [light, setLight] = useState('nan');
   useEffect(() => {
     axios.get('/dati')
       .then((res) => {
         setHum(parseFloat(res.data.humidity).toFixed(2));
         setTemp(parseFloat(res.data.temperature).toFixed(2));
+        setLight(parseFloat(res.data.light).toFixed(2));
       });
   }, []);
   return (
@@ -66,6 +69,7 @@ const StateCard = () => {
       <ContainerStatus>
         <Card icon={tempLogo} state={temp} bgImg="linear-gradient(to left bottom, #ffe7c2, #ffdaa3, #fece84, #fdc165, #fcb344)" />
         <Card icon={humLogo} state={hum} bgImg="linear-gradient(to left bottom, #f4fdfd, #dff7f9, #caf2f7, #b4ebf6, #9de5f7)" />
+        <Card icon={lightLogo} state={light} bgImg="linear-gradient(to left bottom, #ffe7c2, #ffdaa3, #fece84, #fdc165, #fcb344)" />
       </ContainerStatus>
     </Container>
   );

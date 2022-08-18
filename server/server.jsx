@@ -33,7 +33,7 @@ db.once("open", function () {
 app.get('/dati', (req, res) =>  {
     db.collection(name).find().sort({date:-1}).limit(1).toArray(function(err, result) {
         if (err) throw err;
-        res.header("Refresh", "30");
+        res.header("Refresh", "5");
         res.send(result[0]);
     });
 });
