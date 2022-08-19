@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const awsIot = require('aws-iot-device-sdk');
 const connectDB = require('./config/db');
+const { query } = require('express');
 
 const name = 'ESP32_Meteo';
 const  thingShadows = awsIot.thingShadow({
@@ -39,13 +40,17 @@ app.get('/dati', (req, res) =>  {
 });
 
 app.get('/temperature', (req, res) =>  {
-  db.collection(name).find().sort({date:-1}).toArray(function(err, result) {
+  if (req.query.product == undefined) {
+    req.query.product = 10;
+  }
+  db.collection(name).find().limit(parseInt(req.query.product)).sort({date:-1}).toArray(function(err, result) {
       if (err) throw err;
       res.send(result);
-      // console.log(result);
+      console.log(result.length);
   });
+  // console.log(req.query.product);
+  
 });
-
 //Setup connessioni con i device
 
 thingShadows.on('connect', function() {

@@ -12,6 +12,7 @@ import {
 import { Line } from 'react-chartjs-2';
 import styled from 'styled-components/macro';
 import axios from 'axios';
+import Select from 'react-select';
 
 ChartJS.register(
   CategoryScale,
@@ -37,6 +38,7 @@ const Space = styled.div`
 `;
 
 const Chart = () => {
+  // const [selector, setSelector] = useState('');
   const [data, setData] = useState([]);
   useEffect(() => {
     axios.get('/temperature')
@@ -81,8 +83,32 @@ const Chart = () => {
     ],
   };
 
+  const options = [
+    { value: '10', label: '10' },
+    { value: '20', label: '20' },
+    { value: '100000000', label: 'Tutti' },
+  ];
+  const [selectedOption, setSelectedOption] = useState({ value: '10', label: '10' });
+
+  useEffect(() => {
+    axios.get('/temperature', {
+      params: {
+        product: selectedOption.value,
+      },
+    })
+      .then((res) => {
+        setData(res.data);
+      });
+    //  console.log(data);
+  }, [selectedOption]);
   return (
     <Container>
+      <Select
+        defaultValue={selectedOption}
+        onChange={setSelectedOption}
+        options={options}
+      />
+      <Space />
       <Line data={dataLineT} />
       <Space />
       <Line data={dataLineH} />
