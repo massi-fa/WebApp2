@@ -1,9 +1,24 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const IoTClient = require('@aws-sdk/client-iot').IoTClient;
+const CreateThingCommand = require('@aws-sdk/client-iot').CreateThingCommand;
+const CreateKeysAndCertificateCommand = require('@aws-sdk/client-iot').CreateKeysAndCertificateCommand;
+const AttachThingPrincipalCommand = require('@aws-sdk/client-iot').AttachThingPrincipalCommand;
+const AttachPolicyCommand = require('@aws-sdk/client-iot').AttachPolicyCommand;
+const { IoTDataPlaneClient, UpdateThingShadowCommand, GetThingShadowCommand, PublishCommand } = require("@aws-sdk/client-iot-data-plane");
 const awsIot = require('aws-iot-device-sdk');
 const connectDB = require('./config/db');
 const { query } = require('express');
-
+const fs = require('fs');
+const config = {
+  region: 'ap-south-1',
+  credentials: {
+    accessKeyId: 'AKIATWDK7MBYO7YJK5OY',
+    secretAccessKey: '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',
+  },
+};
+const client = new IoTClient(config);
+const clientShadows = new IoTDataPlaneClient(config);
 const name = 'ESP32_Meteo';
 const  thingShadows = awsIot.thingShadow({
     keyPath: './devices/esp32/privateKey.key',
@@ -12,6 +27,7 @@ const  thingShadows = awsIot.thingShadow({
     clientId: 'Meteo1', //nome policy
     host: 'a8bjo0oi9t9yw-ats.iot.ap-south-1.amazonaws.com', //endpoint dispositivo
 })
+console.log(thingShadows);
 
 var humidityState = null;
 var temperatureState = null;
@@ -37,6 +53,18 @@ app.get('/dati', (req, res) =>  {
         res.header("Refresh", "5");
         res.send(result[0]);
     });
+});
+
+
+app.get('/richiesta_info_thing', (req, res) =>  {
+  //catch della richiesta di info della thing
+  console.log("nome della thing inserita");
+  console.log(req.query.thingName);
+  try {
+    addThing(req.query.thingName);
+  } catch (err) {
+    console.log("Error", err);
+  }
 });
 
 app.get('/temperature', (req, res) =>  {
@@ -94,5 +122,95 @@ thingShadows.on('status',  function(name, stat, clientToken,  stateObject) {
 });
 
 const port = process.env.PORT || 5000;
+
+const addThing = async (thingNamePass) => {
+  // parametri per la creazione della thing
+  const inputCreateThing = {
+    thingName: thingNamePass,
+    attributePayload: {
+      attributes: {
+        key: 'value',
+      },
+    },
+  };
+  // creazione della thing
+  const commandCreateThing = new CreateThingCommand(inputCreateThing);
+  const responseCreateThing = await client.send(commandCreateThing);
+  // console.log(responseCreateThing);
+  // creazione della chiave e del certificato
+  const inputCreateCertAndKeys = {
+    setAsActive: true, 
+  };
+  const commandCreateCertAndKeys = new CreateKeysAndCertificateCommand(inputCreateCertAndKeys);
+  const responseCreateCertAndKeys = await client.send(commandCreateCertAndKeys);
+  // console.log(responseCreateCertAndKeys);
+  // attacco della chiave e del certificato alla thing
+  const inputAttachThingPrincipal = {
+    thingName: thingNamePass,
+    principal: responseCreateCertAndKeys.certificateArn,
+  };
+  const commandAttachThingPrincipal = new AttachThingPrincipalCommand(inputAttachThingPrincipal);
+  const responseAttachThingPrincipal = await client.send(commandAttachThingPrincipal);
+  // console.log(responseAttachThingPrincipal);
+  // atatcco della policy alla chiave e al certificato
+  const inputAttachPolicy = {
+    policyName: 'Meteo1',
+    target: responseCreateCertAndKeys.certificateArn,
+  };
+  const commandAttachPolicy = new AttachPolicyCommand(inputAttachPolicy);
+  const responseAttachPolicy = await client.send(commandAttachPolicy);
+  // console.log(responseAttachPolicy);
+  //creo se non esiste la cartella dove salvare i certificati e la chiamo certStorage 
+  if (!fs.existsSync('./certStorage')) {
+    fs.mkdirSync('./certStorage');
+  }
+  //creo se non esiste la cartella dove salvare i certificati e la chiamo come il nome della thing all'interno di certStorage
+  if (!fs.existsSync('./certStorage/' + thingNamePass)) {
+    fs.mkdirSync('./certStorage/' + thingNamePass);
+  } 
+  //get root ca
+  const inputGetRootCA = {
+    certificateId: '5f4b9c3b9c9f9b0001b0b1f9',
+    certificatePem: true,
+  };
+  //salvo i certificati nella cartella certStorage in una sottocartella chimata con la thing name
+  fs.writeFileSync('./certStorage/' + thingNamePass + '/privateKey.key', responseCreateCertAndKeys.keyPair.PrivateKey);
+  fs.writeFileSync('./certStorage/' + thingNamePass + '/certificate.pem.crt', responseCreateCertAndKeys.certificatePem);
+  console.log('certificati salvati');
+  updateShadowInit(thingNamePass);
+  //console.log(responsePublish);
+
+};
+const updateShadowInit = async (thingNamePass) => {
+  const config = {
+    region: 'ap-south-1',
+    credentials: {
+      accessKeyId: 'AKIATWDK7MBYO7YJK5OY',
+      secretAccessKey: '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',
+    },
+  };
+  const client = new IoTDataPlaneClient(config);
+  // update on thing shadow
+  const inputUpdateShadow = {
+    thingName: thingNamePass,
+    payload: JSON.stringify({
+      state: {
+        desired: {
+          value: {
+            humidity: 0,
+            temperature: 0,
+            light: 0,
+          },
+        },
+      },
+    }),
+  };
+  const commandUpdateShadow = new UpdateThingShadowCommand(inputUpdateShadow);
+  const responseUpdateShadow = await client.send(commandUpdateShadow);
+  console.log("Shadow inizializzata");
+};
+
+  
+
 
 app.listen(port, () => console.log(`Server running on port ${port}`));

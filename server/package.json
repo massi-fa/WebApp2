@@ -2,6 +2,7 @@
   "name": "server",
   "version": "1.0.0",
   "description": "",
+  "secure": false,
   "main": "server.jsx",
   "scripts": {
     "start": "nodemon server.jsx",
@@ -11,6 +12,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@aws-sdk/client-iot-data-plane": "^3.163.0",
     "aws-iot-device-sdk": "^2.2.12",
     "body-parser": "^1.20.0",
     "config": "^3.3.7",
