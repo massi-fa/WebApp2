@@ -214,8 +214,8 @@ const updateShadowForGazzosa = async (thingNamePass) => {
   const config = {
     region: 'ap-south-1',
     credentials: {
-      accessKeyId: 'AKIATWDK7MBYO7YJK5OY',
-      secretAccessKey: '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',
+      accessKeyId: '',
+      secretAccessKey: '',
     },
   };
   const client = new IoTDataPlaneClient(config);
