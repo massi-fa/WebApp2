@@ -13,8 +13,8 @@ const fs = require('fs');
 const config = {
   region: 'ap-south-1',
   credentials: {
-    accessKeyId: 'AKIATWDK7MBYO7YJK5OY',
-    secretAccessKey: '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',
+    accessKeyId: '',
+    secretAccessKey: '',
   },
 };
 const client = new IoTClient(config);
@@ -178,6 +178,7 @@ const addThing = async (thingNamePass) => {
   fs.writeFileSync('./certStorage/' + thingNamePass + '/certificate.pem.crt', responseCreateCertAndKeys.certificatePem);
   console.log('certificati salvati');
   updateShadowInit(thingNamePass);
+  updateShadowForGazzosa(thingNamePass);
   //console.log(responsePublish);
 
 };
@@ -185,8 +186,8 @@ const updateShadowInit = async (thingNamePass) => {
   const config = {
     region: 'ap-south-1',
     credentials: {
-      accessKeyId: 'AKIATWDK7MBYO7YJK5OY',
-      secretAccessKey: '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',
+      accessKeyId: '',
+      secretAccessKey: '',
     },
   };
   const client = new IoTDataPlaneClient(config);
@@ -208,6 +209,34 @@ const updateShadowInit = async (thingNamePass) => {
   const commandUpdateShadow = new UpdateThingShadowCommand(inputUpdateShadow);
   const responseUpdateShadow = await client.send(commandUpdateShadow);
   console.log("Shadow inizializzata");
+};
+const updateShadowForGazzosa = async (thingNamePass) => {
+  const config = {
+    region: 'ap-south-1',
+    credentials: {
+      accessKeyId: 'AKIATWDK7MBYO7YJK5OY',
+      secretAccessKey: '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',
+    },
+  };
+  const client = new IoTDataPlaneClient(config);
+  // publish on thing shadow con PublishCommand
+  const inputPublish = {
+    topic: '$aws/things/' + thingNamePass + '/shadow/update',
+    payload: JSON.stringify({
+      state: {
+        desired: {
+          value: {
+            humidity: 11,
+            temperature: 11,
+            light: 11,
+          },
+        },
+      },
+    }),
+  };
+  const commandPublish = new PublishCommand(inputPublish);
+  const responsePublish = await client.send(commandPublish);
+  console.log("Shadow aggiornata");
 };
 
   
