@@ -56,7 +56,7 @@ app.get('/dati', (req, res) =>  {
     });
 });
 
-
+//qui è per la richiesta di creazione di una nuova thing
 app.get('/richiesta_info_thing', (req, res) =>  {
   //catch della richiesta di info della thing
   console.log("nome della thing inserita");
@@ -277,7 +277,29 @@ const connectToAllShadows =  () => {
       });
     //do for the on message
     thingShadows[i].on('message', function (topic, payload) {
-      console.log('message', topic, payload.toString());
+      if(topic == '$aws/things/' + thingNames[i] + '/shadow/update/documents') {
+        //console.log(JSON.parse(payload.toString()));
+        var obj = JSON.parse(payload.toString());
+        humidityState = obj.state.reported.value.humidity;
+        temperatureState = obj.state.reported.value.temperature;
+        lightState = obj.state.reported.value.light;
+        console.log("new Humidity: " + humidityState  + " new Temperature: " + temperatureState +
+          " new Light: " + lightState);
+        db
+        .collection(thingNames[i])
+        .insertOne({
+            humidity: humidityState,
+            temperature: temperatureState,
+            light: lightState,
+            date: new Date()
+        })
+        .then(result => console.log(result))
+        .catch(err => console.error(err));
+        
+    }else{
+      console.log('non ci interessa');
+    }
+    
     });
     //read
   }
@@ -287,6 +309,8 @@ const connectToAllShadows =  () => {
   
   
 };
+
+
 connectToAllShadows();
   
 
