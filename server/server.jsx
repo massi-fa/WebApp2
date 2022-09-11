@@ -68,6 +68,23 @@ app.get('/richiesta_info_thing', (req, res) =>  {
   }
 });
 
+//qui è per la richiesta della lista delle things salvate
+app.get('/get_lista_things', (req, res) =>  {
+      res.header("Refresh", "5");
+      const thingNames = [];
+      // get all subfolders names in certStorage in an array called things
+      const things = fs.readdirSync('./certStorage');
+      // for each subfolder in certStorage
+      things.forEach((thing) => {
+        //atdd the thing name to the array of thing names
+        if (thing !== 'GlobalCert') {
+          thingNames.push(thing);
+        }
+      });
+      res.send(thingNames);
+});
+
+
 app.get('/temperature', (req, res) =>  {
   if (req.query.product == undefined) {
     req.query.product = 10;
@@ -213,6 +230,7 @@ const updateShadowInit = async (thingNamePass) => {
   const responseUpdateShadow = await client.send(commandUpdateShadow);
   console.log("Shadow inizializzata");
 };
+
 const updateShadowForTesting= async (thingNamePass) => {
   const config = {
     region: 'ap-south-1',

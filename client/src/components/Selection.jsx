@@ -1,9 +1,9 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import React from 'react';
 import styled from 'styled-components/macro';
 import axios from 'axios';
 import { useForm } from 'react-hook-form';
-
+import React, { useState, useEffect } from 'react';
+import Select from 'react-select';
 // const fs = require('fs');
 
 const Space = styled.div`
@@ -17,7 +17,9 @@ const Container = styled.div`
     align-items: center;
     padding: 1rem 1.5rem;
 `;
+
 const Selection = () => {
+  const [thingNames, setThingNames] = useState([]);
   const {
     register: registerSearch,
     handleSubmit: handleSubmitSearch,
@@ -33,9 +35,33 @@ const Selection = () => {
       },
     });
   };
+  function toCorrectFormat(x) {
+    return { value: x, label: x };
+  }
+
+  const onRequestNameThings = async () => {
+    // send thing name to server
+    console.log('Thing trovate');
+    axios.get('/get_lista_things')
+      .then((res) => {
+        // mapping to scrolling list
+        setThingNames(res.data.map((x) => toCorrectFormat(x)));
+      });
+    console.log(thingNames);
+  };
+  const [selectedOption, setSelectedOption] = useState({ value: '', label: '' });
+  useEffect(() => {
+    if (thingNames.length === 0) {
+      onRequestNameThings();
+      if (thingNames.length > 0) {
+        console.log(thingNames.length);
+        setSelectedOption(thingNames[0]);
+      }
+    }
+  });
   return (
     <Container>
-      <p> Pagina testing creazione things</p>
+      <p>Creazione thing dato un nome</p>
       <form onSubmit={handleSubmitSearch(onSubmitNameThing)}>
         <input
           type="text"
@@ -45,6 +71,15 @@ const Selection = () => {
         />
         <input type="submit" />
       </form>
+      <Space />
+      <p>Refresh lista things salvate</p>
+      <button type="button" onClick={onRequestNameThings}>Refresh things</button>
+      <p>Selezione thing da visualizzare</p>
+      <Select
+        defaultValue={selectedOption}
+        onChange={setSelectedOption}
+        options={thingNames}
+      />
       <Space />
       <Space />
       <Space />
