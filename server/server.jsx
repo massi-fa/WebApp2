@@ -42,6 +42,9 @@ var humidityState = null;
 var temperatureState = null;
 var lightState = null;
 */
+var thingShadows= [];
+var thingNames = [];
+var currentShadowsNames = [];
 const app = express();
 app.use(express.json());
 
@@ -225,7 +228,7 @@ const addThing = async (thingNamePass) => {
   fs.writeFileSync('./certStorage/' + thingNamePass + '/privateKey.key', responseCreateCertAndKeys.keyPair.PrivateKey);
   fs.writeFileSync('./certStorage/' + thingNamePass + '/certificate.pem.crt', responseCreateCertAndKeys.certificatePem);
   console.log('certificati salvati');
-  connectToAllShadows();
+  connectToOneShadow(thingNamePass);
   updateShadowInit(thingNamePass);
   updateShadowForTesting(thingNamePass);
   //console.log(responsePublish);
@@ -304,7 +307,7 @@ const deleteThing = async (thingNamePass) => {
 
   fs.rmdirSync('./certStorage/' + thingNamePass, { recursive: true });
   console.log("Thing deleted");
-  connectToAllShadows();
+  disconnectFromAShadow(thingNamePass);
 };
 
 
@@ -367,7 +370,7 @@ const updateShadowForTesting= async (thingNamePass) => {
 };
 
 const connectToAllShadows =  () => {
-  const thingNames = [];
+  thingNames = [];
   // get all subfolders names in certStorage in an array called things
   const things = fs.readdirSync('./certStorage');
   // for each subfolder in certStorage
@@ -383,7 +386,6 @@ const connectToAllShadows =  () => {
   //declare array of atwIot.thingShadow of size 
   //atwIot.thingShadow is a class that allows to connect to a thing shadow
   //the array will contain all the thing shadows
-  var thingShadows= [];
   //connect to all the thing shadows
   for (let i = 0; i < thingNames.length; i++) {
     thingShadows[i] = new awsIot.thingShadow({
@@ -421,7 +423,7 @@ const connectToAllShadows =  () => {
         .catch(err => console.error(err));
         
     }else{
-      console.log('non ci interessa');
+      //console.log('non ci interessa');
     }
     
     });
@@ -429,12 +431,67 @@ const connectToAllShadows =  () => {
   }
 
   // print content of thingShadows
-  
+  currentShadowsNames = thingNames;
   
   
 };
 
+const connectToOneShadow = (thingName) => {
+  thingShadowC = new awsIot.thingShadow({
+    keyPath: './certStorage/' + thingName + '/privateKey.key',
+    certPath: './certStorage/' + thingName + '/certificate.pem.crt',
+    caPath: './certStorage/GlobalCert/AmazonRootCA1.pem',
+    clientId: thingName,
+    host: 'a8bjo0oi9t9yw-ats.iot.ap-south-1.amazonaws.com',
+  });
+  thingShadowC.on('connect', function() {
+    thingShadowC.register(thingName, {}, function () {
+      console.log('registered to thing shadow ' + thingName);
+      thingShadowC.subscribe('$aws/things/'+thingName+'/shadow/update/documents');
+      });
+    });
+  //do for the on message
+  thingShadowC.on('message', function (topic, payload) {
+    if(topic == '$aws/things/' + thingName + '/shadow/update/documents') {
+      //console.log(JSON.parse(payload.toString()));
+      var obj = JSON.parse(payload.toString());
+      humidityState = obj.state.reported.value.humidity;
+      temperatureState = obj.state.reported.value.temperature;
+      lightState = obj.state.reported.value.light;
+      console.log("new Humidity: " + humidityState  + " new Temperature: " + temperatureState +
+        " new Light: " + lightState);
+      db
+      .collection(thingName)
+      .insertOne({
+          humidity: humidityState,
+          temperature: temperatureState,
+          light: lightState,
+          date: new Date()
+      })
+      .then(result => console.log(result))
+      .catch(err => console.error(err));
+      
+  }else{
+    //console.log('non ci interessa');
+  }
+  
+  });
+  //push to thingShadows
+  thingShadows.push(thingShadowC);
+  currentShadowsNames.push(thingName);
+}
 
+const disconnectFromAShadow = (thingName) => {
+  //pop element from thingShadows given index
+  //console.log("Vecchio array: " + currentShadowsNames);
+  //console.log(currentShadowsNames.length+" ", thingShadows.length)
+  //unregister from thing shadow
+  thingShadows[currentShadowsNames.indexOf(thingName)].unregister(thingName);
+  thingShadows.splice(currentShadowsNames.indexOf(thingName),1)
+  currentShadowsNames.splice(currentShadowsNames.indexOf(thingName),1)
+  //console.log("Nuovo array: " + currentShadowsNames);
+  //console.log(currentShadowsNames.length+" ", thingShadows.length)
+}
 connectToAllShadows();
   
 
