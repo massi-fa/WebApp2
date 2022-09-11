@@ -5,12 +5,20 @@ const CreateThingCommand = require('@aws-sdk/client-iot').CreateThingCommand;
 const CreateKeysAndCertificateCommand = require('@aws-sdk/client-iot').CreateKeysAndCertificateCommand;
 const AttachThingPrincipalCommand = require('@aws-sdk/client-iot').AttachThingPrincipalCommand;
 const AttachPolicyCommand = require('@aws-sdk/client-iot').AttachPolicyCommand;
+const DeleteThingCommand = require("@aws-sdk/client-iot").DeleteThingCommand;
+const DetachPolicyCommand = require("@aws-sdk/client-iot").DetachPolicyCommand;
+const DetachThingPrincipalCommand = require("@aws-sdk/client-iot").DetachThingPrincipalCommand;
+const UpdateCertificateCommand = require("@aws-sdk/client-iot").UpdateCertificateCommand;
+const DeleteCertificateCommand = require("@aws-sdk/client-iot").DeleteCertificateCommand;
+const ListThingPrincipalsCommand = require("@aws-sdk/client-iot").ListThingPrincipalsCommand;
+const DetachPrincipalPolicyCommand = require("@aws-sdk/client-iot").DetachPrincipalPolicyCommand;
 const { IoTDataPlaneClient, UpdateThingShadowCommand, GetThingShadowCommand, PublishCommand } = require("@aws-sdk/client-iot-data-plane");
 const awsIot = require('aws-iot-device-sdk');
 const connectDB = require('./config/db');
 const { query } = require('express');
 const secrets = require('./config/secrets.json');
 const fs = require('fs');
+const { log } = require('console');
 const config = {
   region: 'ap-south-1',
   credentials: {
@@ -49,11 +57,16 @@ db.once("open", function () {
 });
 
 app.get('/dati', (req, res) =>  {
-    db.collection(name).find().sort({date:-1}).limit(1).toArray(function(err, result) {
+    // console.log(req.query.thingName)
+    // if  req.query.thingName is not undefined
+    if (req.query.thingName !== undefined & req.query.thingName !== '') {
+
+    db.collection(req.query.thingName).find().sort({date:-1}).limit(1).toArray(function(err, result) {
         if (err) throw err;
         res.header("Refresh", "5");
         res.send(result[0]);
     });
+  }
 });
 
 //qui è per la richiesta di creazione di una nuova thing
@@ -63,6 +76,18 @@ app.get('/richiesta_info_thing', (req, res) =>  {
   console.log(req.query.thingName);
   try {
     addThing(req.query.thingName);
+  } catch (err) {
+    console.log("Error", err);
+  }
+});
+//qui è per la richiesta di creazione di una nuova thing
+app.get('/richiesta_info_thing_delete', (req, res) =>  {
+  //catch della richiesta di info della thing
+  console.log("nome della thing inserita");
+  console.log(req.query.thingName);
+  try {
+    deleteThing(req.query.thingName);
+    console.log("delete thing initiated");
   } catch (err) {
     console.log("Error", err);
   }
@@ -89,11 +114,16 @@ app.get('/temperature', (req, res) =>  {
   if (req.query.product == undefined) {
     req.query.product = 10;
   }
-  db.collection(name).find().limit(parseInt(req.query.product)).sort({date:-1}).toArray(function(err, result) {
-      if (err) throw err;
-      res.send(result);
-      console.log(result.length);
-  });
+  console.log("Ricevo questi dati");
+  console.log(req.query);
+  console.log(req.query.thingName)
+  if (req.query.thingName !== undefined & req.query.thingName !== '') {
+    db.collection(req.query.thingName).find().limit(parseInt(req.query.product)).sort({date:-1}).toArray(function(err, result) {
+        if (err) throw err;
+        res.send(result);
+        console.log(result.length);
+    });
+  }
   // console.log(req.query.product);
   
 });
@@ -195,12 +225,88 @@ const addThing = async (thingNamePass) => {
   fs.writeFileSync('./certStorage/' + thingNamePass + '/privateKey.key', responseCreateCertAndKeys.keyPair.PrivateKey);
   fs.writeFileSync('./certStorage/' + thingNamePass + '/certificate.pem.crt', responseCreateCertAndKeys.certificatePem);
   console.log('certificati salvati');
+  connectToAllShadows();
   updateShadowInit(thingNamePass);
   updateShadowForTesting(thingNamePass);
   //console.log(responsePublish);
-  // connectToAllShadows();
+  
 
 };
+
+const deleteThing = async (thingNamePass) => {
+  // Detach policy
+  const inputDetachPolicy = {
+    policyName: 'Meteo1',
+    target: 'arn:aws:iot:ap-south-1:253627424880:cert/' + thingNamePass,
+  };
+
+  const commandDetachPolicy = new DetachPolicyCommand(inputDetachPolicy);
+  const responseDetachPolicy = await client.send(commandDetachPolicy);
+  //console.log(responseDetachPolicy);
+  // get list of  thing principals
+  const inputGetThingPrincipals = {
+    thingName: thingNamePass,
+  };
+
+  const commandGetThingPrincipals = new ListThingPrincipalsCommand(inputGetThingPrincipals);
+  const responseGetThingPrincipals = await client.send(commandGetThingPrincipals);
+  //console.log(responseGetThingPrincipals);
+  if (responseGetThingPrincipals.principals.length > 0) {
+    
+    
+
+  // get last 64 charts of a string to get id of the certificate
+  certificateId = responseGetThingPrincipals.principals[0].slice(-64)  
+
+
+  // update certificate
+  const inputUpdateCertificate = {
+    certificateId: certificateId,
+    newStatus: 'INACTIVE',
+  };
+
+  
+  const commandUpdateCertificate = new UpdateCertificateCommand(inputUpdateCertificate);
+  const responseUpdateCertificate = await client.send(commandUpdateCertificate);
+  // Detach thing principal
+  const inputDetachThingPrincipal = {
+    thingName: thingNamePass,
+    principal: responseGetThingPrincipals.principals[0],
+  };
+
+  const commandDetachThingPrincipal = new DetachThingPrincipalCommand(inputDetachThingPrincipal);
+  const responseDetachThingPrincipal = await client.send(commandDetachThingPrincipal);
+  //console.log(responseDetachThingPrincipal);
+  //detach policy from certificate
+  const inputDetachPolicyFromCertificate = {
+    policyName: 'Meteo1',
+    target: responseGetThingPrincipals.principals[0],
+  };
+  const commandDetachPolicyFromCertificate = new DetachPolicyCommand(inputDetachPolicyFromCertificate);
+  const responseDetachPolicyFromCertificate = await client.send(commandDetachPolicyFromCertificate);
+  //console.log(responseDetachPolicyFromCertificate);
+  //delete certificate
+  const inputDeleteCertificate = {
+    certificateId: certificateId,
+  };
+  const commandDeleteCertificate = new DeleteCertificateCommand(inputDeleteCertificate);
+  const responseDeleteCertificate = await client.send(commandDeleteCertificate);
+  //console.log(responseDeleteCertificate);
+  }
+  // delete thing
+  const inputDeleteThing = {
+    thingName: thingNamePass,
+  };
+  const commandDeleteThing = new DeleteThingCommand(inputDeleteThing);
+  const responseDeleteThing = await client.send(commandDeleteThing);
+  //console.log(responseDeleteThing);
+  //rimuovi la cartella della thing
+
+  fs.rmdirSync('./certStorage/' + thingNamePass, { recursive: true });
+  console.log("Thing deleted");
+  connectToAllShadows();
+};
+
 
 const updateShadowInit = async (thingNamePass) => {
   const config = {

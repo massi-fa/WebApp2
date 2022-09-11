@@ -4,6 +4,8 @@ import axios from 'axios';
 import { useForm } from 'react-hook-form';
 import React, { useState, useEffect } from 'react';
 import Select from 'react-select';
+import StateCard from './bit/StateCard';
+import Chart from './Chart';
 // const fs = require('fs');
 
 const Space = styled.div`
@@ -24,22 +26,15 @@ const Selection = () => {
     register: registerSearch,
     handleSubmit: handleSubmitSearch,
   } = useForm({ shouldUseNativeValidation: true });
-
-  const onSubmitNameThing = async (data) => {
-    // send thing name to server
-    console.log('Thing Selezionata');
-    console.log(data);
-    axios.get('/richiesta_info_thing', {
-      params: {
-        thingName: data.thingNameSearch,
-      },
-    });
-  };
+  const {
+    register: registerDelete,
+    handleSubmit: handleSubmitDelete,
+  } = useForm({ shouldUseNativeValidation: true });
   function toCorrectFormat(x) {
     return { value: x, label: x };
   }
 
-  const onRequestNameThings = async () => {
+  const onRequestNameThings = () => {
     // send thing name to server
     console.log('Thing trovate');
     axios.get('/get_lista_things')
@@ -49,25 +44,57 @@ const Selection = () => {
       });
     console.log(thingNames);
   };
-  const [selectedOption, setSelectedOption] = useState({ value: '', label: '' });
+  const onSubmitNameThingCreation = async (data) => {
+    // send thing name to server
+    console.log('Thing Selezionata creazione');
+    console.log(data);
+    axios.get('/richiesta_info_thing', {
+      params: {
+        thingName: data.thingNameSearch,
+      },
+    }).then(() => {
+      onRequestNameThings();
+    });
+  };
+  const onSubmitNameThingDelete = async (data) => {
+    // send thing name to server
+    console.log('Thing Selezionata distruzione');
+    console.log(data);
+    axios.get('/richiesta_info_thing_delete', {
+      params: {
+        thingName: data.thingNameDelete,
+      },
+    }).then(() => {
+      onRequestNameThings();
+    });
+  };
+
+  const [selectedOption, setSelectedOption] = useState({ value: '', label: 'Nessuna Thing selezionata' });
   useEffect(() => {
     if (thingNames.length === 0) {
       onRequestNameThings();
-      if (thingNames.length > 0) {
-        console.log(thingNames.length);
-        setSelectedOption(thingNames[0]);
-      }
     }
-  });
+  }, [thingNames]);
   return (
     <Container>
       <p>Creazione thing dato un nome</p>
-      <form onSubmit={handleSubmitSearch(onSubmitNameThing)}>
+      <form onSubmit={handleSubmitSearch(onSubmitNameThingCreation)}>
         <input
           type="text"
           name="thingNameSearch"
-          placeholder="Inserire nome della nuuova thing"
+          placeholder="Inserire nome della nuova thing"
           {...registerSearch('thingNameSearch', { required: 'Please enter your first name.' })} // custom message
+        />
+        <input type="submit" />
+      </form>
+      <Space />
+      <p>Eliminazione thing dato un nome</p>
+      <form onSubmit={handleSubmitDelete(onSubmitNameThingDelete)}>
+        <input
+          type="text"
+          name="thingNameDelete"
+          placeholder="Inserire nome della thing da rimuovere"
+          {...registerDelete('thingNameDelete', { required: 'Please enter your first name.' })} // custom message
         />
         <input type="submit" />
       </form>
@@ -84,6 +111,8 @@ const Selection = () => {
       <Space />
       <Space />
       <Space />
+      <StateCard selectedThing={selectedOption.value} />
+      <Chart selectedThing={selectedOption.value} />
       <Space />
       <Space />
       <Space />

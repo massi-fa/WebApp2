@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components/macro';
 // import PropTypes from 'prop-types';
 import axios from 'axios';
+import PropTypes from 'prop-types';
 
 import sun from '../../res/sun.svg';
 import humLogo from '../../res/humidityLogo.svg';
@@ -49,18 +50,21 @@ const Icon = styled.img`
     margin: auto;
 `;
 
-const StateCard = () => {
-  const [temp, setTemp] = useState('nan');
-  const [hum, setHum] = useState('nan');
-  const [light, setLight] = useState('nan');
+const StateCard = ({ selectedThing }) => {
+  const [temp, setTemp] = useState('');
+  const [hum, setHum] = useState('');
+  const [light, setLight] = useState('');
   useEffect(() => {
-    axios.get('/dati')
-      .then((res) => {
-        setHum(parseFloat(res.data.humidity).toFixed(2));
-        setTemp(parseFloat(res.data.temperature).toFixed(2));
-        setLight(parseFloat(res.data.light).toFixed(2));
-      });
-  }, []);
+    axios.get('/dati', {
+      params: {
+        thingName: selectedThing,
+      },
+    }).then((res) => {
+      setHum(parseFloat(res.data.humidity).toFixed(2));
+      setTemp(parseFloat(res.data.temperature).toFixed(2));
+      setLight(parseFloat(res.data.light).toFixed(2));
+    });
+  }, [selectedThing]);
   return (
     <Container>
       <ContainerIcon>
@@ -74,5 +78,7 @@ const StateCard = () => {
     </Container>
   );
 };
-
+StateCard.propTypes = {
+  selectedThing: PropTypes.string.isRequired,
+};
 export default StateCard;

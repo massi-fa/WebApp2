@@ -13,6 +13,7 @@ import { Line } from 'react-chartjs-2';
 import styled from 'styled-components/macro';
 import axios from 'axios';
 import Select from 'react-select';
+import PropTypes from 'prop-types';
 
 ChartJS.register(
   CategoryScale,
@@ -37,14 +38,17 @@ const Space = styled.div`
   margin-bottom: 20px;
 `;
 
-const Chart = () => {
+const Chart = ({ selectedThing }) => {
   // const [selector, setSelector] = useState('');
   const [data, setData] = useState([]);
   useEffect(() => {
-    axios.get('/temperature')
-      .then((res) => {
-        setData(res.data);
-      });
+    axios.get('/temperature', {
+      params: {
+        thingName: selectedThing,
+      },
+    }).then((res) => {
+      setData(res.data);
+    });
   }, []);
 
   const dataLineT = {
@@ -94,13 +98,15 @@ const Chart = () => {
     axios.get('/temperature', {
       params: {
         product: selectedOption.value,
+        thingName: selectedThing,
       },
     })
       .then((res) => {
         setData(res.data);
       });
     //  console.log(data);
-  }, [selectedOption]);
+  }, [selectedOption, selectedThing]);
+
   return (
     <Container>
       <Select
@@ -118,4 +124,7 @@ const Chart = () => {
   );
 };
 
+Chart.propTypes = {
+  selectedThing: PropTypes.string.isRequired,
+};
 export default Chart;
