@@ -1,7 +1,5 @@
 import React from 'react';
 import styled, { createGlobalStyle } from 'styled-components/macro';
-import axios from 'axios';
-import { useState, useEffect } from 'react';
 
 import {
   BrowserRouter as Router,
@@ -12,6 +10,8 @@ import {
 
 import Home from './components/Home';
 import Selection from './components/Selection';
+import ThingManager from './components/ThingManager';
+import History from './components/bit/History';
 
 const GlobalStyle = createGlobalStyle`
   * {
@@ -50,12 +50,24 @@ const App = () => (
           }
         />
         <Route
+          path="/manager"
+          element={
+            <ThingManager />
+          }
+        />
+        <Route
+          path="/history"
+          element={
+            <History />
+          }
+        />
+        <Route
           path="/richiesta_info_thing"
           element={
             <Selection />
           }
         />
-        <Route path="/" element={<Navigate to="/home" />} />
+        <Route path="/" element={<Navigate to="/selection" />} />
       </Routes>
     </Router>
   </Container>

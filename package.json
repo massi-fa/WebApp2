@@ -15,12 +15,19 @@
   "dependencies": {
     "@aws-sdk/client-iot": "^3.163.0",
     "@aws-sdk/client-iot-data-plane": "^3.163.0",
+    "@emotion/react": "^11.10.4",
+    "@emotion/styled": "^11.10.4",
+    "@mui/icons-material": "^5.10.3",
+    "@mui/lab": "^5.0.0-alpha.99",
+    "@mui/material": "^5.10.5",
     "aws-sdk": "^2.1209.0",
     "concurrently": "^7.3.0",
     "fs": "^0.0.1-security",
     "prop-types": "^15.8.1",
+    "react-burger-menu": "^3.0.8",
     "react-hook-form": "^7.34.2",
     "react-select": "^5.4.0",
+    "react-window": "^1.8.7",
     "styled-components": "^5.3.5",
     "use-file-picker": "^1.5.1"
   }

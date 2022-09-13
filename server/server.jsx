@@ -11,7 +11,6 @@ const DetachThingPrincipalCommand = require("@aws-sdk/client-iot").DetachThingPr
 const UpdateCertificateCommand = require("@aws-sdk/client-iot").UpdateCertificateCommand;
 const DeleteCertificateCommand = require("@aws-sdk/client-iot").DeleteCertificateCommand;
 const ListThingPrincipalsCommand = require("@aws-sdk/client-iot").ListThingPrincipalsCommand;
-const DetachPrincipalPolicyCommand = require("@aws-sdk/client-iot").DetachPrincipalPolicyCommand;
 const { IoTDataPlaneClient, UpdateThingShadowCommand, GetThingShadowCommand, PublishCommand } = require("@aws-sdk/client-iot-data-plane");
 const awsIot = require('aws-iot-device-sdk');
 const connectDB = require('./config/db');
@@ -72,6 +71,7 @@ app.get('/dati', (req, res) =>  {
   }
 });
 
+
 //qui è per la richiesta di creazione di una nuova thing
 app.get('/richiesta_info_thing', (req, res) =>  {
   //catch della richiesta di info della thing
@@ -129,6 +129,14 @@ app.get('/temperature', (req, res) =>  {
   }
   // console.log(req.query.product);
   
+});
+
+app.get('/get_history', (req, res) =>  {
+    db.collection('actionsReport').find().sort({date:-1}).toArray(function(err, result) {
+        if (err) throw err;
+        res.send(result);
+        console.log(result.length);
+    });
 });
 //Setup connessioni con i device
 /*
@@ -231,6 +239,13 @@ const addThing = async (thingNamePass) => {
   connectToOneShadow(thingNamePass);
   updateShadowInit(thingNamePass);
   updateShadowForTesting(thingNamePass);
+  db
+  .collection("actionsReport")
+  .insertOne({
+      text: "Inserita la thing " + thingNamePass,
+  })
+  .then(result => console.log(result))
+  .catch(err => console.error(err));
   //console.log(responsePublish);
   
 
@@ -308,6 +323,13 @@ const deleteThing = async (thingNamePass) => {
   fs.rmdirSync('./certStorage/' + thingNamePass, { recursive: true });
   console.log("Thing deleted");
   disconnectFromAShadow(thingNamePass);
+  db
+  .collection("actionsReport")
+  .insertOne({
+      text: "Rimossa la thing " + thingNamePass,
+  })
+  .then(result => console.log(result))
+  .catch(err => console.error(err));
 };
 
 

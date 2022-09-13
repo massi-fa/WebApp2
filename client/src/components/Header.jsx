@@ -58,39 +58,9 @@ const ElementContent = styled.a`
   }
 `;
 
-const Hamburger = styled.button`
-  border: none;
-  outline: none;
-  background-color: transparent;
-  display: ${(props) => (props.width <= breakpoint ? null : 'none')};
-`;
-
-const Line = styled.span`
-  display: block;
-  width: 25px;
-  height: 3px;
-  margin: 5px auto;
-  -webkit-transition: all 0.3s ease-in-out;
-  transition: all 0.3s ease-in-out;
-  background-color: #212427;
-  &:nth-child(1) {
-    transform: ${(props) => (props.menu ? 'translateY(8px) rotate(45deg)' : 'none')};
-  }
-  &:nth-child(2) {
-    opacity: ${(props) => (props.menu ? '0' : 'none')};
-  }
-  &:nth-child(3) {
-    transform: ${(props) => (props.menu ? 'translateY(-8px) rotate(-45deg)' : 'none')};
-  }
-`;
-
 const Header = () => {
   const [width, setWidth] = useState(window.innerWidth);
   const [menu, setMenu] = useState(false);
-
-  const handleClick = () => {
-    setMenu(!menu);
-  };
 
   useEffect(() => {
     window.addEventListener('resize', () => setWidth(window.innerWidth));
@@ -105,20 +75,15 @@ const Header = () => {
       <Logo src={logo} />
       <ElementList active={menu}>
         <Element>
-          <ElementContent>Home</ElementContent>
+          <ElementContent href="\selection">Dashboard</ElementContent>
         </Element>
         <Element>
-          <ElementContent>Stats</ElementContent>
+          <ElementContent href="\manager">Gestione</ElementContent>
         </Element>
         <Element>
-          <ElementContent>Info</ElementContent>
+          <ElementContent href="\history">Storico</ElementContent>
         </Element>
       </ElementList>
-      <Hamburger width={width} onClick={handleClick}>
-        <Line id="1" menu={menu} />
-        <Line id="2" menu={menu} />
-        <Line id="3" menu={menu} />
-      </Hamburger>
     </Container>
   );
 };
