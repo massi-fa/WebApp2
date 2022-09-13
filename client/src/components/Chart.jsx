@@ -104,7 +104,7 @@ const Chart = ({ selectedThing }) => {
       .then((res) => {
         setData(res.data);
       });
-    //  console.log(data);
+    console.log(data);
   }, [selectedOption, selectedThing]);
 
   return (

@@ -1,7 +1,5 @@
 import React from 'react';
 import styled, { createGlobalStyle } from 'styled-components/macro';
-import axios from 'axios';
-import { useState, useEffect } from 'react';
 
 import {
   BrowserRouter as Router,
@@ -12,6 +10,8 @@ import {
 
 import Home from './components/Home';
 import Selection from './components/Selection';
+import DashboardContent from './components/dashboard/Dashboard';
+import ControlThings from './components/dashboard/ControlThings';
 
 const GlobalStyle = createGlobalStyle`
   * {
@@ -44,13 +44,25 @@ const App = () => (
           }
         />
         <Route
-          path="/selection"
+          path="/richiesta_info_thing"
           element={
             <Selection />
           }
         />
         <Route
-          path="/richiesta_info_thing"
+          path="/dashboard"
+          element={
+            <DashboardContent />
+          }
+        />
+        <Route
+          path="/controlthings"
+          element={
+            <ControlThings />
+          }
+        />
+        <Route
+          path="/selection"
           element={
             <Selection />
           }
@@ -62,3 +74,12 @@ const App = () => (
 );
 
 export default App;
+
+/*
+        <Route
+          path="/selection"
+          element={
+            <Selection />
+          }
+        />
+        */
