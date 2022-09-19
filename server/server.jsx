@@ -21,7 +21,7 @@ const { log } = require('console');
 const config = {
   region: 'ap-south-1',
   credentials: {
-    accessKeyId: secrets.accessKeyId,
+    accessKeyId: secrets.accessKeyId,//https://us-east-1.console.aws.amazon.com/iam/home?region=ap-south-1#/security_credentials
     secretAccessKey: secrets.secretAccessKey,
   },
 };
@@ -428,9 +428,10 @@ const connectToAllShadows =  () => {
       if(topic == '$aws/things/' + thingNames[i] + '/shadow/update/documents') {
         //console.log(JSON.parse(payload.toString()));
         var obj = JSON.parse(payload.toString());
-        humidityState = obj.state.reported.value.humidity;
-        temperatureState = obj.state.reported.value.temperature;
-        lightState = obj.state.reported.value.light;
+        console.log(obj.current);
+        humidityState = obj.current.state.reported.value.humidity;
+        temperatureState = obj.current.state.reported.value.temperature;
+        lightState = obj.current.state.reported.value.light;
         console.log("new Humidity: " + humidityState  + " new Temperature: " + temperatureState +
           " new Light: " + lightState);
         db
