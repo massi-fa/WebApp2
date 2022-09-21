@@ -28,19 +28,7 @@ const config = {
 const client = new IoTClient(config);
 const clientShadows = new IoTDataPlaneClient(config);
 const name = 'ESP32_Meteo';
-/*const  thingShadows = awsIot.thingShadow({
-    keyPath: './devices/esp32/privateKey.key',
-    certPath: './devices/esp32/deviceCert.crt',
-    caPath: './devices/esp32/AmazonRootCA1.pem',
-    clientId: 'Meteo1', //nome policy
-    host: 'a8bjo0oi9t9yw-ats.iot.ap-south-1.amazonaws.com', //endpoint dispositivo
-})
-console.log(thingShadows);
 
-var humidityState = null;
-var temperatureState = null;
-var lightState = null;
-*/
 var thingShadows= [];
 var thingNames = [];
 var currentShadowsNames = [];
@@ -51,6 +39,12 @@ app.use(express.json());
 connectDB();
 
 const db = mongoose.connection;
+
+const dirCert = './certStorage';
+
+if (!fs.existsSync(dirCert)){
+  fs.mkdirSync(dirCert, { recursive: true });
+}
 
 db.on("error", console.error.bind(console, "connection error: "));
 
@@ -101,7 +95,7 @@ app.get('/get_lista_things', (req, res) =>  {
       res.header("Refresh", "5");
       const thingNames = [];
       // get all subfolders names in certStorage in an array called things
-      const things = fs.readdirSync('./certStorage');
+      const things = fs.readdirSync(dir);
       // for each subfolder in certStorage
       things.forEach((thing) => {
         //atdd the thing name to the array of thing names
@@ -138,48 +132,7 @@ app.get('/get_history', (req, res) =>  {
         console.log(result.length);
     });
 });
-//Setup connessioni con i device
-/*
-thingShadows.on('connect', function() {
-    thingShadows.register(name, {}, function() {
-       thingShadows.get(name);
-       //thingShadows.subscribe('esp32/pub');
-       thingShadows.subscribe('$aws/things/ESP32_Meteo/shadow/update/documents');
-    });
-});
 
-thingShadows.on('message', function(topic, payload) {
-    if(topic == '$aws/things/' + name + '/shadow/update/documents') {
-        var obj = JSON.parse(payload.toString());
-        humidityState = obj.current.state.reported.value.humidity;
-        temperatureState = obj.current.state.reported.value.temperature;
-        lightState = obj.current.state.reported.value.light;
-        console.log("new Humidity: " + humidityState  + " new Temperature: " + temperatureState +
-          " new Light: " + lightState);
-        db
-        .collection(name)
-        .insertOne({
-            humidity: humidityState,
-            temperature: temperatureState,
-            light: lightState,
-            date: new Date()
-        })
-        .then(result => console.log(result))
-        .catch(err => console.error(err));
-        
-    }else{
-      console.log('non ci interessa');
-    }
-    
-  });
-
-thingShadows.on('status',  function(name, stat, clientToken,  stateObject) {
-  console.log('received '+stat+' on '+name+': '+ JSON.stringify(stateObject));
-  humidityState = stateObject.state.reported.value.humidity;
-  temperatureState = stateObject.state.reported.value.temperature;
-  lightState = stateObject.state.reported.value.light;
-});
-*/
 const port = process.env.PORT || 5000;
 
 const addThing = async (thingNamePass) => {
