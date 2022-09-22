@@ -11,11 +11,11 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import TextField from '@mui/material/TextField';
 import SearchIcon from '@mui/icons-material/Search';
 import InputAdornment from '@mui/material/InputAdornment';
-// const fs = require('fs');
 
-const Space = styled.div`
-  margin-top: 2px;
-  margin-bottom: 20px;
+import refresh from '../../res/refresh.svg';
+
+const ContainerUp = styled.div`
+
 `;
 const ScrollableDiv = styled.div`
   height: 350px;
@@ -30,6 +30,13 @@ const Container = styled.div`
     flex-direction: column;
     align-items: center;
     padding: 1rem 1.5rem;
+`;
+const RefreshContainer = styled.a`
+  margin: auto;
+  margin-left: 15px;
+`;
+const RefreshLogo = styled.img`
+  width: 1.5rem;
 `;
 
 const Selection = () => {
@@ -79,22 +86,24 @@ const Selection = () => {
   };
   return (
     <Container>
-      <Space />
-      <p>Refresh lista things salvate</p>
-      <button type="button" onClick={onRequestNameThings}>Refresh things</button>
-      <TextField
-        id="input-with-icon-textfield"
-        label="Ricerca Thing"
-        InputProps={{
-          startAdornment: (
-            <InputAdornment position="start">
-              <SearchIcon />
-            </InputAdornment>
-          ),
-        }}
-        variant="standard"
-        onChange={handleChangeSearch}
-      />
+      <ContainerUp>
+        <TextField
+          id="input-with-icon-textfield"
+          label="Ricerca Thing"
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon />
+              </InputAdornment>
+            ),
+          }}
+          variant="standard"
+          onChange={handleChangeSearch}
+        />
+        <RefreshContainer>
+          <RefreshLogo src={refresh} onClick={onRequestNameThings} />
+        </RefreshContainer>
+      </ContainerUp>
       <ScrollableDiv>
         <Box sx={{ width: '100%', maxWidth: 600, bgcolor: 'background.paper' }}>
           <nav aria-label="main mailbox folders" />

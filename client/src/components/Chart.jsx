@@ -26,7 +26,7 @@ ChartJS.register(
 );
 
 const Container = styled.div`
-  margin-top: 20px;
+  margin-top: 60px;
   padding: 15px;
   background-color: white;
   border-radius: 10px;
@@ -51,7 +51,7 @@ const Chart = ({ selectedThing }) => {
     });
   }, []);
 
-  const dataLineT = {
+  const dataLine = {
     labels: data.map(({ date }) => date.substring(11, 19).replace('T', '/')),
     datasets: [
       {
@@ -60,24 +60,12 @@ const Chart = ({ selectedThing }) => {
         borderColor: '#ffe7c2',
         backgroundColor: '#fcb344',
       },
-    ],
-  };
-
-  const dataLineL = {
-    labels: data.map(({ date }) => date.substring(11, 19).replace('T', '/')),
-    datasets: [
       {
         label: 'Light',
         data: data.map(({ light }) => light),
         borderColor: '#ffe7c2',
         backgroundColor: '#fcb344',
       },
-    ],
-  };
-
-  const dataLineH = {
-    labels: data.map(({ date }) => date.substring(11, 19).replace('T', '/')),
-    datasets: [
       {
         label: 'Humidity',
         data: data.map(({ humidity }) => humidity),
@@ -115,11 +103,8 @@ const Chart = ({ selectedThing }) => {
         options={options}
       />
       <Space />
-      <Line data={dataLineT} />
+      <Line data={dataLine} />
       <Space />
-      <Line data={dataLineH} />
-      <Space />
-      <Line data={dataLineL} />
     </Container>
   );
 };

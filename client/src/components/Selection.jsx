@@ -34,6 +34,14 @@ const Container = styled.div`
     padding: 1rem 1.5rem;
 `;
 
+const ContainerResponsive = styled.div`
+  @media only screen and (min-width: 900px) {
+    display: flex;
+    flex-direction: row;
+    margin: 60px auto;
+  };
+`;
+
 const customStyles = {
   control: (styles) => ({
     ...styles,
@@ -85,13 +93,15 @@ const Selection = () => {
           <RefreshLogo src={refresh} onClick={onRequestNameThings} />
         </RefreshContainer>
       </ContainerSettings>
-      {selectedOption.value === '' ? null
-        : (
-          <>
-            <StateCard selectedThing={selectedOption.value} />
-            <Chart selectedThing={selectedOption.value} />
-          </>
-        )}
+      <ContainerResponsive>
+        {selectedOption.value === '' ? null
+          : (
+            <>
+              <StateCard selectedThing={selectedOption.value} />
+              <Chart selectedThing={selectedOption.value} />
+            </>
+          )}
+      </ContainerResponsive>
     </Container>
   );
 };

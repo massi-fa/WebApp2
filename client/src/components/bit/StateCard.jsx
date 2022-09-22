@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 
 import sun from '../../res/sun.svg';
 import midsun from '../../res/midsun.svg';
-import night from  '../../res/night.svg';
+import night from '../../res/night.svg';
 import humLogo from '../../res/humidityLogo.svg';
 import tempLogo from '../../res/temperatureLogo.svg';
 import lightLogo from '../../res/lightLogo.svg';
@@ -46,6 +46,7 @@ const Container = styled.div`
     // border-color: #fcdc7b;
     border-radius: 10px;
     padding: 15px;
+    margin-top: 50px;
     // background-image: linear-gradient(to right, #fdf4d8, #fdeec1, #fde8aa, #fce293, #fcdc7b);
     // box-shadow: rgba(0, 0, 0, 0.15) 0px 5px 15px;
 `;
@@ -87,7 +88,7 @@ const StateCard = ({ selectedThing }) => {
   return (
     <Container>
       <ContainerIcon>
-        {StateIcon.filter((icona) => icona.minValue <= light && icona.maxValue >= light ).map((icona) => (
+        {StateIcon.filter((icona) => icona.minValue <= light && icona.maxValue >= light).map((icona) => (
           <Icon src={icona.icon} key={icona.id} />
         ))}
       </ContainerIcon>
