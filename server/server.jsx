@@ -40,7 +40,7 @@ connectDB();
 
 const db = mongoose.connection;
 
-const dirCert = './certStorage';
+const dirCert = './certStorage/GlobalCert';
 
 if (!fs.existsSync(dirCert)){
   fs.mkdirSync(dirCert, { recursive: true });
@@ -95,7 +95,7 @@ app.get('/get_lista_things', (req, res) =>  {
       res.header("Refresh", "5");
       const thingNames = [];
       // get all subfolders names in certStorage in an array called things
-      const things = fs.readdirSync(dir);
+      const things = fs.readdirSync('./certStorage');
       // for each subfolder in certStorage
       things.forEach((thing) => {
         //atdd the thing name to the array of thing names

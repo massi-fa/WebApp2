@@ -110,7 +110,7 @@ const Chart = ({ selectedThing }) => {
   return (
     <Container>
       <Select
-        defaultValue={selectedOption}
+        defaultValue={selectedOption.value}
         onChange={setSelectedOption}
         options={options}
       />

@@ -6,12 +6,26 @@ import Select from 'react-select';
 import StateCard from './bit/StateCard';
 import Chart from './Chart';
 import Header from './Header';
-// const fs = require('fs');
 
-const Space = styled.div`
-  margin-top: 2px;
-  margin-bottom: 20px;
+import refresh from '../res/refresh.svg';
+
+const ContainerSettings = styled.div`
+  display: flex;
+  flex-direction: row;
+  padding: 15px;
+  z-index: 10;
 `;
+
+const RefreshContainer = styled.a`
+  margin: auto;
+  margin-left: 15px;
+`;
+
+const RefreshLogo = styled.img`
+  width: 1.5rem;
+  
+`;
+
 const Container = styled.div`
     display: flex;
     justify-content: space-between;
@@ -20,57 +34,64 @@ const Container = styled.div`
     padding: 1rem 1.5rem;
 `;
 
+const customStyles = {
+  control: (styles) => ({
+    ...styles,
+    width: '270px',
+  }),
+  option: (styles) => ({
+    ...styles,
+    width: '270px',
+  }),
+  menu: (styles) => ({
+    ...styles,
+    width: '270px',
+  }),
+
+};
+
 const Selection = () => {
   const [thingNames, setThingNames] = useState([]);
-
   function toCorrectFormat(x) {
     return { value: x, label: x };
   }
-
+  const [selectedOption, setSelectedOption] = useState({ value: '', label: 'Nessuna Thing selezionata' });
   const onRequestNameThings = () => {
     // send thing name to server
-    console.log('Thing trovate');
     axios.get('/get_lista_things')
       .then((res) => {
         // mapping to scrolling list
         setThingNames(res.data.map((x) => toCorrectFormat(x)));
       });
-    console.log(thingNames);
   };
-
-  const [selectedOption, setSelectedOption] = useState({ value: '', label: 'Nessuna Thing selezionata' });
   useEffect(() => {
     if (thingNames.length === 0) {
       onRequestNameThings();
     }
   }, [thingNames]);
 
-  useEffect(() => {
-    console.log('blabla');
-    console.log(selectedOption);
-  }, [selectedOption]);
   return (
     <Container>
       <Header />
-      <Space />
-      <p>Refresh lista things salvate</p>
-      <button type="button" onClick={onRequestNameThings}>Refresh things</button>
-      <p>Selezione thing da visualizzare</p>
-      <Select
-        defaultValue={selectedOption}
-        onChange={setSelectedOption}
-        options={thingNames}
-      />
-      <Space />
-      <Space />
-      <Space />
-      <Space />
-      <StateCard selectedThing={selectedOption.value} />
-      <Chart selectedThing={selectedOption.value} />
-      <Space />
-      <Space />
-      <Space />
-      <Space />
+      <ContainerSettings>
+        <Select
+          styles={customStyles}
+          defaultValue={selectedOption}
+          onChange={setSelectedOption}
+          options={thingNames}
+          menuPortalTarget={document.querySelector('body')}
+        />
+        <RefreshContainer>
+          <RefreshLogo src={refresh} onClick={onRequestNameThings} />
+        </RefreshContainer>
+      </ContainerSettings>
+      {selectedOption.value === '' ? null
+        : (
+          <>
+            <StateCard selectedThing={selectedOption.value} />
+            <Chart selectedThing={selectedOption.value} />
+          </>
+        )}
     </Container>
   );
 };

@@ -12,11 +12,11 @@ const Space = styled.div`
   margin-bottom: 20px;
 `;
 const Container = styled.div`
-    display: flex;
-    justify-content: space-between;
-    flex-direction: column;
-    align-items: center;
-    padding: 1rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem 1.5rem;
 `;
 
 const ThingManager = () => {

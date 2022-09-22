@@ -24,6 +24,7 @@
                 "namedComponents": "arrow-function",
                 "unnamedComponents": "arrow-function"
             }
-        ]
+        ],
+        "max-len": "off"
     }
 }

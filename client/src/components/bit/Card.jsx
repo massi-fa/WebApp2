@@ -5,35 +5,56 @@ import PropTypes from 'prop-types';
 const Container = styled.div`
   display: flex;
   justify-content: space-evenly;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  background-image: ${(props) => props.bgImg};
   margin: 5px;
   border-radius: 10px;
-  padding: 2px 4px 2px 4px;
+  padding: 4px 4px 4px 4px;
+  width: 8rem;
 `;
 
 const Icon = styled.img`
-  width: 2rem;
-  margin: auto 0px 5px auto;
+  width: 1.8rem;
+  margin: auto;
+  margin-left: 10px;
+`;
+
+const ContainerText = styled.div`
+`;
+
+const Title = styled.h1`
+  color: #212427;
+  font-size: 0.7rem;
 `;
 
 const Text = styled.h1`
   color: #212427;
-  font-size: 1.2rem;
+  font-size: 1.3rem;
 `;
 
-const Card = ({ icon, state, bgImg }) => (
-  <Container bgImg={bgImg}>
+const Card = ({
+  icon,
+  state,
+  title,
+  unity,
+}) => (
+  <Container>
     <Icon src={icon} />
-    <Text>{state}</Text>
+    <ContainerText>
+      <Title>{title}</Title>
+      <Text>
+        {state}
+        {unity}
+      </Text>
+    </ContainerText>
   </Container>
 );
 
 Card.propTypes = {
   icon: PropTypes.node.isRequired,
   state: PropTypes.node.isRequired,
-  bgImg: PropTypes.string.isRequired,
+  title: PropTypes.string.isRequired,
+  unity: PropTypes.string.isRequired,
 };
 
 export default Card;

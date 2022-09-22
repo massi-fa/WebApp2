@@ -8,10 +8,9 @@ import {
   Navigate,
 } from 'react-router-dom';
 
-import Home from './components/Home';
 import Selection from './components/Selection';
 import ThingManager from './components/ThingManager';
-import History from './components/bit/History';
+import History from './components/History';
 
 const GlobalStyle = createGlobalStyle`
   * {
@@ -23,12 +22,14 @@ const GlobalStyle = createGlobalStyle`
   }
   body {
     height: 100%;
-    background-color: #D8F7FC;
-  } 
+    width: 100%;
+    // background-color: #D8F7FC;
+  }
 `;
 
 const Container = styled.div`
   height: 100%;
+  width: 100%;
   overflow-y: auto;
 `;
 
@@ -38,36 +39,24 @@ const App = () => (
     <Router>
       <Routes>
         <Route
-          path="/home"
-          element={
-            <Home />
-          }
-        />
-        <Route
-          path="/selection"
+          path="/Dashboard"
           element={
             <Selection />
           }
         />
         <Route
-          path="/manager"
+          path="/Manager"
           element={
             <ThingManager />
           }
         />
         <Route
-          path="/history"
+          path="/History"
           element={
             <History />
           }
         />
-        <Route
-          path="/richiesta_info_thing"
-          element={
-            <Selection />
-          }
-        />
-        <Route path="/" element={<Navigate to="/selection" />} />
+        <Route path="/" element={<Navigate to="/Dashboard" />} />
       </Routes>
     </Router>
   </Container>
