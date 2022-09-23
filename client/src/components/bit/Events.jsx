@@ -15,7 +15,7 @@ import InputAdornment from '@mui/material/InputAdornment';
 import refresh from '../../res/refresh.svg';
 
 const ContainerUp = styled.div`
-
+  display: flex;
 `;
 const ScrollableDiv = styled.div`
   height: 350px;
@@ -25,11 +25,11 @@ const ScrollableDiv = styled.div`
   padding: 20px;
 `;
 const Container = styled.div`
-    display: flex;
-    justify-content: space-between;
-    flex-direction: column;
-    align-items: center;
-    padding: 1rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem 1.5rem;
 `;
 const RefreshContainer = styled.a`
   margin: auto;

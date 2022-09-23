@@ -7,12 +7,12 @@ import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import Header from './Header';
 
-// const fs = require('fs');
-
-const Space = styled.div`
-  margin-top: 2px;
-  margin-bottom: 20px;
-`;
+const textRed = {
+  color: 'red',
+};
+const textGre = {
+  color: 'green',
+};
 const ScrollableDiv = styled.div`
   height: 350px;
   overflow: auto;
@@ -27,6 +27,11 @@ const Container = styled.div`
     align-items: center;
     padding: 1rem 1.5rem;
 `;
+const Text = styled.h1`
+  font-size: 1.3rem;
+  margin: 15px;
+  text-align: center;
+`;
 
 const History = () => {
   const [data, setData] = useState([]);
@@ -35,8 +40,7 @@ const History = () => {
     // console.log('Thing trovate');
     axios.get('/get_history', {
     }).then((res) => {
-      setData(res.data.map((x) => x.text));
-      console.log(res.data.map((x) => x.text));
+      setData(res.data.map((x) => x.text).reverse());
     });
   };
 
@@ -48,7 +52,7 @@ const History = () => {
   return (
     <Container>
       <Header />
-      <Space />
+      <Text>History Things</Text>
       <ScrollableDiv>
         <Box sx={{ width: '100%', maxWidth: 600, bgcolor: 'background.paper' }}>
           <nav aria-label="main mailbox folders" />
@@ -60,7 +64,7 @@ const History = () => {
                   key={t}
                 >
                   <Box sx={{ width: '100%', maxWidth: 500, bgcolor: 'background.paper' }}>
-                    <ListItemText primary={t} />
+                    {t.includes('Inserita') ? <ListItemText primary={t} primaryTypographyProps={{ style: textGre }} /> : <ListItemText primary={t} primaryTypographyProps={{ style: textRed }} />}
                   </Box>
                 </ListItem>
               ))

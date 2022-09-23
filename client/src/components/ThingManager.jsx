@@ -52,7 +52,9 @@ const ContainerResponsive = styled.div`
   };*/
 `;
 const Text = styled.h1`
-  
+  font-size: 1.3rem;
+  margin: 15px;
+  text-align: center;
 `;
 const ContainerUp = styled.div`
 
@@ -64,9 +66,6 @@ const ThingManager = () => {
     handleSubmit: handleSubmitSearch,
   } = useForm({ shouldUseNativeValidation: true });
   const onSubmitNameThingCreation = async (data) => {
-    // send thing name to server
-    console.log('Thing Selezionata creazione');
-    console.log(data);
     axios.get('/richiesta_info_thing', {
       params: {
         thingName: data.thingNameSearch,
